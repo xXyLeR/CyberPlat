@@ -1,0 +1,36 @@
+# Equivalente em produção do loop `app/worker.py::run_forever()`. Um
+# CronJob é preferível a um Deployment de longa duração aqui: se o
+# worker travar silenciosamente, um Deployment ficaria "rodando" sem
+# fazer nada; um CronJob que falha gera uma execução com status Failed
+# visível — mais fácil de alertar sobre isso.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: lab-expiration-worker
+  namespace: vantage-range-platform
+spec:
+  schedule: "* * * * *"  # a cada minuto
+  concurrencyPolicy: Forbid  # nunca duas execuções sobrepostas
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 50  # deve terminar bem antes do próximo minuto
+      template:
+        spec:
+          serviceAccountName: range-orchestrator
+          restartPolicy: Never
+          containers:
+            - name: expiration-worker
+              image: registry.internal.vantage-range/core-api:latest
+              command: ["python", "-c", "from app.worker import expire_overdue_instances; from app.database import SessionLocal; from app.orchestrator import get_orchestrator; db = SessionLocal(); print(expire_overdue_instances(db, get_orchestrator())); db.close()"]
+              env:
+                - name: RANGE_PROVIDER
+                  value: "kubernetes"
+                - name: DATABASE_URL
+                  valueFrom: { secretKeyRef: { name: core-api-secrets, key: database-url } }
+                - name: JWT_SECRET_KEY
+                  valueFrom: { secretKeyRef: { name: core-api-secrets, key: jwt-secret-key } }
+              securityContext:
+                runAsNonRoot: true
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities: { drop: ["ALL"] }

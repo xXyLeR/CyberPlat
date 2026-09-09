@@ -1,0 +1,14 @@
+# Requer o RuntimeClass handler "gvisor" instalado nos nós do cluster
+# (containerd configurado com o shim runsc). Ver:
+# https://gvisor.dev/docs/user_guide/containerd/quick_start/
+#
+# Nota: se o cluster ainda não tiver gVisor instalado nos nós, um pod
+# referenciando este RuntimeClass simplesmente falha ao ser agendado
+# (Pending) em vez de "degradar silenciosamente" para o runtime padrão —
+# isso é intencional: preferimos falhar visivelmente a rodar sem o
+# isolamento de kernel esperado.
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: gvisor
+handler: runsc

@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-api
+  namespace: vantage-range-platform
+  labels:
+    vantage.io/role: platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: core-api }
+  template:
+    metadata:
+      labels: { app: core-api, vantage.io: platform }
+    spec:
+      serviceAccountName: range-orchestrator
+      automountServiceAccountToken: true  # o core-api PRECISA do token — é ele quem chama a API do cluster
+      containers:
+        - name: core-api
+          image: registry.internal.vantage-range/core-api:latest
+          ports: [{ containerPort: 8000 }]
+          env:
+            - name: RANGE_PROVIDER
+              value: "kubernetes"
+            - name: DATABASE_URL
+              valueFrom: { secretKeyRef: { name: core-api-secrets, key: database-url } }
+            - name: JWT_SECRET_KEY
+              valueFrom: { secretKeyRef: { name: core-api-secrets, key: jwt-secret-key } }
+          resources:
+            requests: { cpu: "250m", memory: "256Mi" }
+            limits: { cpu: "1", memory: "512Mi" }
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          readinessProbe:
+            httpGet: { path: /health, port: 8000 }
+            initialDelaySeconds: 5
+          livenessProbe:
+            httpGet: { path: /health, port: 8000 }
+            initialDelaySeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: core-api
+  namespace: vantage-range-platform
+spec:
+  selector: { app: core-api }
+  ports:
+    - port: 80
+      targetPort: 8000
+---
+# Secrets NUNCA são versionados em texto puro no repositório. Em
+# produção, este objeto é gerado pelo pipeline de CI/CD a partir do
+# Vault (ex: via External Secrets Operator), nunca escrito manualmente
+# como um YAML commitado com valores reais.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: core-api-secrets
+  namespace: vantage-range-platform
+type: Opaque
+stringData:
+  database-url: "PREENCHIDO_PELO_PIPELINE_VIA_VAULT"
+  jwt-secret-key: "PREENCHIDO_PELO_PIPELINE_VIA_VAULT"

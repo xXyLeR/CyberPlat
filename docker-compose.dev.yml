@@ -1,0 +1,102 @@
+# Docker Compose de DESENVOLVIMENTO apenas.
+#
+# Decisão importante: mesmo em dev, a rede da plataforma
+# (vantage-range-platform-net) e a rede reservada a labs são
+# logicamente separadas — isso evita que engenheiros se acostumem com
+# um hábito inseguro que "vaza" para staging/produção.
+#
+# Em produção (Fase 4), este compose é substituído por manifests
+# Kubernetes com NetworkPolicy (Cilium) + runtimeClassName: gvisor,
+# conforme descrito na arquitetura da Fase 1.
+
+version: "3.9"
+
+networks:
+  vantage-range-platform-net:
+    name: vantage-range-platform-net
+    driver: bridge
+  # Redes de laboratório (lab-net-<instance_id>) são criadas
+  # DINAMICAMENTE pelo Range Orchestrator em runtime — não existem
+  # aqui como serviços estáticos do compose.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vantage
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: vantage_range
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [vantage-range-platform-net]
+    ports:
+      - "127.0.0.1:5432:5432"  # exposto só em localhost, nunca 0.0.0.0
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks: [vantage-range-platform-net]
+    ports:
+      - "127.0.0.1:6379:6379"
+
+  core-api:
+    build:
+      context: ./core-api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://vantage:${POSTGRES_PASSWORD}@postgres:5432/vantage_range
+    depends_on: [postgres, redis]
+    networks: [vantage-range-platform-net]
+    ports:
+      - "127.0.0.1:8000:8000"
+    # Requer acesso ao socket Docker do HOST para orquestrar containers
+    # de lab. Em produção isso NÃO é um bind mount de socket — é
+    # substituído pela API do Kubernetes com uma ServiceAccount de
+    # permissão mínima (RBAC do próprio K8s), exatamente para evitar
+    # esse acoplamento perigoso a nível de host que só é aceitável em
+    # dev local.
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  # Worker de expiração automática — equivalente local do CronJob
+  # Kubernetes (infra/k8s/base/cronjob-lab-expiration.yaml) usado em
+  # produção (Fase 4). Roda em loop contínuo aqui porque o Docker
+  # Compose não tem um agendador nativo tipo CronJob.
+  lab-expiration-worker:
+    build:
+      context: ./core-api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://vantage:${POSTGRES_PASSWORD}@postgres:5432/vantage_range
+    command: ["python", "-m", "app.worker"]
+    depends_on: [postgres, redis]
+    networks: [vantage-range-platform-net]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  # Session Gateway — única porta de entrada para o navegador alcançar
+  # um container de laboratório (ver session-gateway/app/main.py).
+  # Decisão de segurança: monta o MESMO socket Docker que o
+  # lab-expiration-worker/core-api, mas o código do gateway só chama
+  # `containers.get()` (leitura/inspect) — nunca create/run/remove. Em
+  # produção, isso é reforçado com um docker-socket-proxy configurado
+  # para permitir apenas GET no socket, já que o mount `:ro` do arquivo
+  # NÃO impõe granularidade de permissões na própria API do Docker.
+  session-gateway:
+    build:
+      context: ./session-gateway
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://vantage:${POSTGRES_PASSWORD}@postgres:5432/vantage_range
+    depends_on: [postgres]
+    networks: [vantage-range-platform-net]
+    ports:
+      - "127.0.0.1:8001:8001"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+volumes:
+  pgdata:
