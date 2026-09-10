@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vantage-range-platform
+  labels:
+    vantage.io/role: platform
+---
+# ServiceAccount usada pelo Range Orchestrator para criar/destruir
+# namespaces e pods de laboratório.
+#
+# Decisão de segurança: o RBAC abaixo concede permissão para criar e
+# deletar NAMESPACES e o que roda dentro deles (pods, networkpolicies) —
+# mas NÃO concede acesso a Secrets, ConfigMaps sensíveis, ou recursos no
+# namespace da própria plataforma. Isso limita o "raio de explosão" caso
+# o próprio Core API seja comprometido: o atacante ganharia a capacidade
+# de criar/destruir ambientes de lab, não de ler segredos da plataforma.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: range-orchestrator
+  namespace: vantage-range-platform
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: range-orchestrator-role
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["create", "delete", "get", "list"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["create", "delete", "get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["networkpolicies"]
+    verbs: ["create", "delete", "get", "list"]
+  # Explicitamente SEM acesso a: secrets, configmaps, serviceaccounts,
+  # roles/rolebindings — o orchestrator não precisa disso para
+  # provisionar/destruir laboratórios, e não deveria conseguir, mesmo
+  # que um bug na aplicação tentasse.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: range-orchestrator-binding
+subjects:
+  - kind: ServiceAccount
+    name: range-orchestrator
+    namespace: vantage-range-platform
+roleRef:
+  kind: ClusterRole
+  name: range-orchestrator-role
+  apiGroup: rbac.authorization.k8s.io

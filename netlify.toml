@@ -1,0 +1,20 @@
+# O frontend fica em web/, não na raiz do repo — sem isso, o Netlify
+# procura um package.json na raiz, não encontra (ou encontra o
+# core-api/requirements.txt e se confunde), e o build falha ou publica
+# a pasta errada, resultando em 404.
+[build]
+  base = "web"
+  command = "npm run build"
+  publish = ".next"
+
+# Plugin oficial da Netlify para Next.js — sem ele, rotas dinâmicas
+# (SSR) e app router não funcionam corretamente, e você volta a ver 404
+# nas páginas que não são puramente estáticas.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Ajuste a URL do core-api real (não localhost) nas variáveis de
+# ambiente do site no dashboard da Netlify, ou defina aqui um valor
+# público (nunca segredo) se preferir versionar:
+# [build.environment]
+#   NEXT_PUBLIC_API_URL = "https://sua-api-em-producao.example.com"

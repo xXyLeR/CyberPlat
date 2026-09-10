@@ -1,0 +1,41 @@
+# Lab 01 — Web Fundamentals
+# Este arquivo é a fonte de verdade "humana" da definição do lab.
+# O que é persistido em app.seed / via POST /labs é o equivalente em JSON
+# (ver app/seed.py::LAB_01_DEFINITION).
+
+name: Web Fundamentals
+slug: web-fundamentals
+difficulty: beginner
+category: web
+estimated_minutes: 30
+
+objectives:
+  - http
+  - authentication
+  - input_validation
+
+prerequisites: []
+
+machines:
+  - name: web01
+    image: vantage-range/web-fundamentals:latest
+    ports:
+      - 8080
+
+network:
+  isolated: true
+
+flags:
+  - id: flag_01
+    points: 100
+    # O valor real da flag NUNCA fica neste arquivo em produção — isso
+    # aqui é apenas para fins de demonstração no ambiente de dev. Em
+    # produção, o valor é gerado por lab instance (flag dinâmica) ou lido
+    # de um secret store no momento da criação do LabTemplate.
+    value: "VANTAGE{auth_bypass_via_idor_demo}"
+
+hints:
+  - "Depois de logar, veja a URL do seu próprio perfil. O que acontece se você trocar o número no final?"
+
+scoring:
+  max_points: 100
