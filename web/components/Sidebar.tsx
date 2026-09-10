@@ -9,10 +9,10 @@ const NAV_ITEMS = [
   { href: "/labs", label: "Labs" },
   { href: "/learning-paths", label: "Learning Paths" },
   { href: "/ctf", label: "CTF" },
-<<<<<<< HEAD
+  HEAD
   { href: "/leaderboard", label: "Leaderboard" },
 =======
->>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be
+  7da46cdbcf65aa44a988cbff473c3d4a232500be
   { href: "/assessments", label: "Assessments" },
   { href: "/reports", label: "Reports" },
   { href: "/teams", label: "Teams" },
