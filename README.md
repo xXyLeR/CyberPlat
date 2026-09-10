@@ -104,6 +104,7 @@ cp .env.example .env    # edite POSTGRES_PASSWORD e JWT_SECRET_KEY
 docker compose -f docker-compose.dev.yml up --build
 ```
 
+<<<<<<< HEAD
 ## Deploy do frontend (Vercel / Netlify)
 
 Isso é um **monorepo** — o `package.json` do frontend fica em `web/`,
@@ -129,6 +130,8 @@ plataformas usam seus próprios adaptadores que esperam o build padrão
 do Next.js. Se você clonou uma versão mais antiga deste projeto e ainda
 via 404, confirme que `next.config.js` está com essa condicional.
 
+=======
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be
 ## O que este MVP cobre (Fase 2 → Fase 5)
 
 - Autenticação JWT (registro/login), sempre como `student` por padrão.
@@ -164,6 +167,7 @@ via 404, confirme que `next.config.js` está com essa condicional.
   test manual completo (login → IDOR → flag) através do proxy real
   contra a app do Lab 01 rodando de verdade, não só com testes mockados.
 - Audit log append-only.
+<<<<<<< HEAD
 - **CTF com ranking**: desafios por categoria (web, network, linux,
   windows, active_directory, cloud, containers, cryptography,
   forensics, reverse_engineering), com flags como hash, hints e
@@ -172,6 +176,12 @@ via 404, confirme que `next.config.js` está com essa condicional.
 - Frontend completo: dashboard, labs (com botão "Abrir laboratório"
   usando o Session Gateway de verdade), learning paths com quiz, CTF
   com leaderboard, reports, teams, e fluxo de login com MFA.
+=======
+- **86 testes automatizados** cobrindo todas as fases (70 no core-api + 16 no session-gateway).
+- Frontend completo: dashboard, labs (com botão "Abrir laboratório"
+  usando o Session Gateway de verdade), learning paths com quiz,
+  reports, teams, e fluxo de login com MFA.
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be
 
 ## O que NÃO foi implementado (limitação real, não escondida)
 
@@ -184,10 +194,15 @@ via 404, confirme que `next.config.js` está com essa condicional.
   como o Lab 01 — cenários que precisem de acesso SSH/RDP completo
   (ex: labs de Active Directory) precisam de um adaptador de protocolo
   adicional, ainda não implementado.
+<<<<<<< HEAD
 - Observabilidade completa (Prometheus/Grafana/OpenTelemetry).
 - O reveal de hints no CTF é só uma pacing de UX no frontend — o
   backend já retorna todos os hints de um desafio de uma vez (não há
   endpoint de "custo por hint revelado" que desconte pontos).
+=======
+- CTF com ranking/leaderboard dedicado.
+- Observabilidade completa (Prometheus/Grafana/OpenTelemetry).
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be
 
 ## Rodando o provider Kubernetes (Fase 4)
 

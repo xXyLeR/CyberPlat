@@ -276,6 +276,7 @@ class Report(Base):
     title = Column(String, nullable=False)
     content_json = Column(JSON, nullable=False)
     generated_at = Column(DateTime, default=utcnow)
+<<<<<<< HEAD
 
 
 # ---------------------------------------------------------------------------
@@ -319,3 +320,5 @@ class CTFSubmission(Base):
     correct = Column(Boolean, default=False)
     points_awarded = Column(Integer, default=0)
     submitted_at = Column(DateTime, default=utcnow)
+=======
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be

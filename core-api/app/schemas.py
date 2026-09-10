@@ -257,6 +257,7 @@ class ReportOut(BaseModel):
             generated_at=report.generated_at,
             content=report.content_json,
         )
+<<<<<<< HEAD
 
 
 # ---- CTF ----
@@ -308,3 +309,5 @@ class TeamLeaderboardEntryOut(BaseModel):
     team_name: str
     total_xp: int
     member_count: int
+=======
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be

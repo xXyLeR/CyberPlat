@@ -6,10 +6,15 @@ from app.routers import (
     audit,
     auth,
     analytics,
+<<<<<<< HEAD
     ctf,
     labs,
     lab_sessions,
     leaderboard,
+=======
+    labs,
+    lab_sessions,
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be
     learning_paths,
     organizations,
     reports,
@@ -42,8 +47,11 @@ app.include_router(labs.router)
 app.include_router(lab_sessions.router)
 app.include_router(submissions.router)
 app.include_router(learning_paths.router)
+<<<<<<< HEAD
 app.include_router(ctf.router)
 app.include_router(leaderboard.router)
+=======
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be
 app.include_router(organizations.router)
 app.include_router(teams.router)
 app.include_router(analytics.router)

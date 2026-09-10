@@ -13,9 +13,12 @@ RUN npm ci
 COPY . .
 ARG NEXT_PUBLIC_API_URL=http://localhost:8000
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+<<<<<<< HEAD
 # Ativa output:"standalone" em next.config.js — só faz sentido aqui,
 # nunca em builds para Vercel/Netlify (ver comentário em next.config.js).
 ENV DOCKER_BUILD=1
+=======
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be
 RUN npm run build
 
 FROM node:20-slim AS runtime

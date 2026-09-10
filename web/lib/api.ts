@@ -133,6 +133,7 @@ export type ReportOut = {
   };
 };
 
+<<<<<<< HEAD
 export type ChallengeOut = {
   id: string;
   title: string;
@@ -168,6 +169,8 @@ export type TeamLeaderboardEntryOut = {
   member_count: number;
 };
 
+=======
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be
 class ApiError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -320,6 +323,7 @@ export const api = {
   async getReport(id: string) {
     return request<ReportOut>(`/reports/${id}`);
   },
+<<<<<<< HEAD
   async listChallenges() {
     return request<ChallengeOut[]>("/challenges");
   },
@@ -338,6 +342,8 @@ export const api = {
   async teamLeaderboard() {
     return request<TeamLeaderboardEntryOut[]>("/leaderboard/teams");
   },
+=======
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be
 };
 
 export { ApiError };

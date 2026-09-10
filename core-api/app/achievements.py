@@ -12,7 +12,10 @@ from sqlalchemy.orm import Session
 from app.models import (
     Achievement,
     Badge,
+<<<<<<< HEAD
     CTFSubmission,
+=======
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be
     Course,
     CourseProgress,
     LearningPath,
@@ -58,20 +61,29 @@ def check_and_award_achievements(db: Session, user_id: str) -> list[Achievement]
     """Reavalia todos os critérios de badge para um usuário. Idempotente."""
     newly_awarded: list[Achievement] = []
 
+<<<<<<< HEAD
     # --- First Blood: pelo menos 1 submissão correta na vida do usuário
     #     (conta tanto flags de lab quanto flags de CTF — o critério é
     #     "primeira flag da vida", não "primeira flag de lab") ---
     has_correct_lab_submission = (
+=======
+    # --- First Blood: pelo menos 1 submissão correta na vida do usuário ---
+    has_correct_submission = (
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be
         db.query(Submission)
         .filter(Submission.user_id == user_id, Submission.correct == True)  # noqa: E712
         .first()
     )
+<<<<<<< HEAD
     has_correct_ctf_submission = (
         db.query(CTFSubmission)
         .filter(CTFSubmission.user_id == user_id, CTFSubmission.correct == True)  # noqa: E712
         .first()
     )
     if has_correct_lab_submission or has_correct_ctf_submission:
+=======
+    if has_correct_submission:
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be
         result = _award_if_missing(db, user_id, BADGE_FIRST_BLOOD)
         if result:
             newly_awarded.append(result)

@@ -9,6 +9,7 @@ Executar com: python -m app.seed
 from app.achievements import ensure_default_badges
 from app.database import Base, SessionLocal, engine
 from app.lab_schema import validate_lab_definition
+<<<<<<< HEAD
 from app.models import (
     Challenge,
     Course,
@@ -20,6 +21,9 @@ from app.models import (
     RoleName,
     User,
 )
+=======
+from app.models import Course, Flag, Lab, LearningPath, Organization, QuizQuestion, RoleName, User
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be
 from app.security import hash_password, sha256_hex
 
 Base.metadata.create_all(bind=engine)
@@ -160,6 +164,7 @@ def run():
             db.commit()
             print(f"  criada learning path: {path.slug} (2 cursos)")
 
+<<<<<<< HEAD
         # --- Desafios de CTF de demonstração ---
         if not db.query(Challenge).filter(Challenge.slug == "crypto-101").first():
             db.add(
@@ -199,6 +204,8 @@ def run():
         db.commit()
         print("  criados desafios de CTF: crypto-101, forensics-101")
 
+=======
+>>>>>>> 7da46cdbcf65aa44a988cbff473c3d4a232500be
         print("Seed concluído.")
     finally:
         db.close()
